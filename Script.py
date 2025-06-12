@@ -443,3 +443,4 @@ Cʜᴇᴄᴋ Dᴏᴡɴ Tᴏ Vɪᴇᴡ.
 
 ⚙️ Fɪʟᴇ Sɪᴢᴇ :- {}</b>
 """
+FOUND_MSG = """<b>🔎 Searched:</b> <code>{}</code>\n<b>📁 Files Found:</b> <code>{}</code>"""
