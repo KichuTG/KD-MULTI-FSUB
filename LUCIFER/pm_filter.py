@@ -2,6 +2,7 @@ import asyncio
 import re
 import ast
 import math
+import random
 
 from pyrogram.errors.exceptions.bad_request_400 import MediaEmpty, PhotoInvalidDimensions, WebpageMediaEmpty
 from Script import script
@@ -1065,7 +1066,6 @@ async def cb_handler(client: Client, query: CallbackQuery):
 
     
 async def auto_filter(client, msg, spoll=False):
-    thinkStc = None
     if not spoll:
         message = msg
         settings = await get_settings(message.chat.id)
@@ -1078,7 +1078,6 @@ async def auto_filter(client, msg, spoll=False):
             files, offset, total_results = await get_search_results(search.lower(), offset=0, filter=True)
             if not files:
                 if settings["spell_check"]:
-                    thinkStc = await msg.reply_sticker(sticker=random.choice(STICKERS_IDS))
                     ai_sts = await msg.reply_text('<b>Ai is Checking Your Spelling. Please Wait...</b>')
                     is_misspelled = await ai_spell_check(search)
                     if is_misspelled:
@@ -1086,12 +1085,8 @@ async def auto_filter(client, msg, spoll=False):
                         await asyncio.sleep(2)
                         msg.text = is_misspelled
                         await ai_sts.delete()
-                        if thinkStc:
-                            await delSticker(thinkStc)
                         return await auto_filter(client, msg)
                     await ai_sts.delete()
-                    if thinkStc:
-                        await delSticker(thinkStc)
                     return await advantage_spell_chok(msg)
                 else:
                     return
@@ -1115,7 +1110,12 @@ async def auto_filter(client, msg, spoll=False):
             for file in files
         ]
     elif msg.chat.id in filters.chat(chats=SUPPORT_GROUP):
-        return await message.reply_text(script.SGROUP_TXT.format(message.from_user.mention if message.from_user else message.chat.title, total_results, search, temp.U_NAME), disable_web_page_preview=True)
+        return await message.reply_text(script.SGROUP_TXT.format(
+            message.from_user.mention if message.from_user else message.chat.title,
+            total_results,
+            search,
+            temp.U_NAME
+        ), disable_web_page_preview=True)
     else:
         btn = [
             [
@@ -1176,15 +1176,16 @@ async def auto_filter(client, msg, spoll=False):
     if offset != "":
         key = f"{message.chat.id}-{message.id}"
         BUTTONS[key] = search
-        req = message.from_user.id if message.from_user else 0
         btn.append(
-            [InlineKeyboardButton("ᴘᴀɢᴇs", callback_data="pages"), InlineKeyboardButton(text=f"1/{math.ceil(int(total_results)/10)}",callback_data="pages"), InlineKeyboardButton(text="ɴᴇxᴛ",callback_data=f"next_{req}_{key}_{offset}")]
+            [InlineKeyboardButton("ᴘᴀɢᴇs", callback_data="pages"),
+             InlineKeyboardButton(text=f"1/{math.ceil(int(total_results)/10)}", callback_data="pages"),
+             InlineKeyboardButton(text="ɴᴇxᴛ", callback_data=f"next_{req}_{key}_{offset}")]
         )
     else:
         btn.append(
-            [InlineKeyboardButton(text="ɴᴏ ᴍᴏʀᴇ ᴘᴀɢᴇs ᴀᴠᴀɪʟᴀʙʟᴇ",callback_data="pages")]
+            [InlineKeyboardButton(text="ɴᴏ ᴍᴏʀᴇ ᴘᴀɢᴇs ᴀᴠᴀɪʟᴀʙʟᴇ", callback_data="pages")]
         )
-    
+
     await msg.reply_text(script.FOUND_MSG.format(search, total_results), reply_markup=InlineKeyboardMarkup(btn))
     imdb = await get_poster(search, file=(files[0]).file_name) if settings["imdb"] else None
     TEMPLATE = settings['template']
