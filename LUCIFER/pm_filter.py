@@ -1312,21 +1312,51 @@ async def auto_filter(client, msg, spoll=False):
     if spoll:
         await msg.message.delete()
 
-async def advantage_spell_chok(msg):
-    search = msg.text.replace(" ", "+")
+async def advantage_spell_chok(message):
+    search = message.text
+    google_search = search.replace(" ", "+")
     btn = [[
-        InlineKeyboardButton(
-            text="ɪɴsᴛʀᴜᴄᴛɪᴏɴs",
-            callback_data="splmd"
-        ),
-            InlineKeyboardButton(
-            text="ɢᴏᴏɢʟᴇ",
-            url=f"https://google.com/search?q={search}"
-        )
+        InlineKeyboardButton("⚠️ Instructions ⚠️", callback_data='instructions'),
+        InlineKeyboardButton("🔎 Search Google 🔍", url=f"https://www.google.com/search?q={google_search}")
     ]]
-    spl = await msg.reply(
-        text=script.CUDNT_FND,
-        reply_markup=InlineKeyboardMarkup(btn)
+    try:
+        movies = await get_poster(search, bulk=True)
+    except:
+        n = await message.reply_photo(photo=random.choice(PICS), caption=script.NOT_FILE_TXT.format(message.from_user.mention, search), reply_markup=InlineKeyboardMarkup(btn))
+        await asyncio.sleep(60)
+        await n.delete()
+        try:
+            await message.delete()
+        except:
+            pass
+        return
+
+    if not movies:
+        n = await message.reply_photo(photo=random.choice(PICS), caption=script.NOT_FILE_TXT.format(message.from_user.mention, search), reply_markup=InlineKeyboardMarkup(btn))
+        await asyncio.sleep(60)
+        await n.delete()
+        try:
+            await message.delete()
+        except:
+            pass
+        return
+
+    user = message.from_user.id if message.from_user else 0
+    buttons = [[
+        InlineKeyboardButton(text=movie.get('title'), callback_data=f"spolling#{movie.movieID}#{user}")
+    ]
+        for movie in movies
+    ]
+    buttons.append(
+        [InlineKeyboardButton("🚫 ᴄʟᴏsᴇ 🚫", callback_data="close_data")]
+    )
+    s = await message.reply_photo(photo=random.choice(PICS), caption=f"👋 Hello {message.from_user.mention},\n\nI couldn't find the <b>'{search}'</b> you requested.\nSelect if you meant one of these? 👇", reply_markup=InlineKeyboardMarkup(buttons), reply_to_message_id=message.id)
+    await asyncio.sleep(300)
+    await s.delete()
+    try:
+        await message.delete()
+    except:
+        pass
     )
     await asyncio.sleep(SPL_DELETE_TIME)
     await spl.delete()
