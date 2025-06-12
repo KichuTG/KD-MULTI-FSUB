@@ -1350,17 +1350,21 @@ async def advantage_spell_chok(message):
     buttons.append(
         [InlineKeyboardButton("🚫 ᴄʟᴏsᴇ 🚫", callback_data="close_data")]
     )
-    s = await message.reply_photo(photo=random.choice(PICS), caption=f"👋 Hello {message.from_user.mention},\n\nI couldn't find the <b>'{search}'</b> you requested.\nSelect if you meant one of these? 👇", reply_markup=InlineKeyboardMarkup(buttons), reply_to_message_id=message.id)
-    await asyncio.sleep(300)
-    await s.delete()
+
+    s = await message.reply_photo(
+        photo=random.choice(PICS),
+        caption=f"👋 Hello {message.from_user.mention},\n\nI couldn't find the <b>'{search}'</b> you requested.\nSelect if you meant one of these? 👇",
+        reply_markup=InlineKeyboardMarkup(buttons),
+        reply_to_message_id=message.id
+    )
+
+    await asyncio.sleep(300)  # wait before auto-deleting
     try:
+        await s.delete()
         await message.delete()
     except:
         pass
-    )
-    await asyncio.sleep(SPL_DELETE_TIME)
-    await spl.delete()
-    await msg.delete()
+
     return
 
 async def manual_filters(client, message, text=False):
