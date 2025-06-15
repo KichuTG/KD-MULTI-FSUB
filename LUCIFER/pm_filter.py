@@ -1302,10 +1302,16 @@ async def advantage_spell_chok(message):
         InlineKeyboardButton("⚠️ Instructions ⚠️", callback_data='instructions'),
         InlineKeyboardButton("🔎 Search Google 🔍", url=f"https://www.google.com/search?q={google_search}")
     ]]
+    
     try:
         movies = await get_poster(search, bulk=True)
     except:
-        n = await message.reply_photo(photo=random.choice(SPELL_IMG), caption=script.NOT_FILE_TXT.format(message.from_user.mention, search), reply_markup=InlineKeyboardMarkup(btn))
+        n = await message.reply_photo(
+            photo=random.choice(SPELL_IMG),
+            caption=script.NOT_FILE_TXT.format(message.from_user.mention, search),
+            reply_markup=InlineKeyboardMarkup(btn),
+            quote=True
+        )
         await asyncio.sleep(60)
         await n.delete()
         try:
@@ -1315,7 +1321,12 @@ async def advantage_spell_chok(message):
         return
 
     if not movies:
-        n = await message.reply_photo(photo=random.choice(PICS), caption=script.NOT_FILE_TXT.format(message.from_user.mention, search), reply_markup=InlineKeyboardMarkup(btn))
+        n = await message.reply_photo(
+            photo=random.choice(PICS),
+            caption=script.NOT_FILE_TXT.format(message.from_user.mention, search),
+            reply_markup=InlineKeyboardMarkup(btn),
+            quote=True
+        )
         await asyncio.sleep(60)
         await n.delete()
         try:
@@ -1327,17 +1338,15 @@ async def advantage_spell_chok(message):
     user = message.from_user.id if message.from_user else 0
     buttons = [[
         InlineKeyboardButton(text=movie.get('title'), callback_data=f"spolling#{movie.movieID}#{user}")
-    ]
-        for movie in movies
-    ]
-    buttons.append(
-        [InlineKeyboardButton("🚫 ᴄʟᴏsᴇ 🚫", callback_data="close_data")]
-    )
+    ] for movie in movies]
+
+    buttons.append([InlineKeyboardButton("🚫 ᴄʟᴏsᴇ 🚫", callback_data="close_data")])
 
     s = await message.reply_photo(
         photo=random.choice(PICS),
         caption=f"👋 Hello {message.from_user.mention},\n\nI couldn't find the <b>'{search}'</b> you requested.\nSelect if you meant one of these? 👇",
-        reply_markup=InlineKeyboardMarkup(buttons),quote=True
+        reply_markup=InlineKeyboardMarkup(buttons),
+        quote=True,
         reply_to_message_id=message.id
     )
 
