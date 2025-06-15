@@ -1048,24 +1048,14 @@ async def auto_filter(client, msg, spoll=False):
     if not spoll:
         message = msg
         settings = await get_settings(message.chat.id)
-
         if message.text.startswith("/"): return  # ignore commands
-        if re.findall(r"((^\/|^,|^!|^\.|^[\U0001F600-\U000E007F]).*)", message.text):
+        if re.findall("((^\/|^,|^!|^\.|^[\U0001F600-\U000E007F]).*)", message.text):
             return
         if len(message.text) < 100:
             search = message.text
             files, offset, total_results = await get_search_results(search.lower(), offset=0, filter=True)
             if not files:
                 if settings["spell_check"]:
-                    ai_sts = await msg.reply_text('<b>Ai is Checking Your Spelling. Please Wait...</b>')
-                    is_misspelled = await ai_spell_check(search)
-                    if is_misspelled:
-                        await ai_sts.edit(f'<b>Ai Suggested <code>{is_misspelled}</code>\nSearching for <code>{is_misspelled}</code></b>')
-                        await asyncio.sleep(2)
-                        msg.text = is_misspelled
-                        await ai_sts.delete()
-                        return await auto_filter(client, msg)
-                    await ai_sts.delete()
                     return await advantage_spell_chok(msg)
                 else:
                     return
@@ -1073,12 +1063,10 @@ async def auto_filter(client, msg, spoll=False):
             return
     else:
         settings = await get_settings(msg.message.chat.id)
-        message = msg.message.reply_to_message
+        message = msg.message.reply_to_message  # msg will be callback query
         search, files, offset, total_results = spoll
-
     pre = 'filep' if settings['file_secure'] else 'file'
     req = message.from_user.id if message.from_user else 0
-
     if settings["button"] and msg.chat.id not in filters.chat(chats=SUPPORT_GROUP):
         btn = [
             [
@@ -1088,13 +1076,7 @@ async def auto_filter(client, msg, spoll=False):
             ]
             for file in files
         ]
-    elif msg.chat.id in filters.chat(chats=SUPPORT_GROUP):
-        return await message.reply_text(script.SGROUP_TXT.format(
-            message.from_user.mention if message.from_user else message.chat.title,
-            total_results,
-            search,
-            temp.U_NAME
-        ), disable_web_page_preview=True)
+    elif msg.chat.id in filters.chat(chats=SUPPORT_GROUP): return await message.reply_text(script.SGROUP_TXT.format(message.from_user.mention if message.from_user else message.chat.title, total_results, search, temp.U_NAME), disable_web_page_preview=True)
     else:
         btn = [
             [
@@ -1119,6 +1101,7 @@ async def auto_filter(client, msg, spoll=False):
                     InlineKeyboardButton(f'ꜱᴇʀɪᴇꜱ', 'sinfo')
                 ]
             )
+
         else:
             btn.insert(0, 
                 [
@@ -1127,6 +1110,7 @@ async def auto_filter(client, msg, spoll=False):
                     InlineKeyboardButton(f'ɪɴꜰᴏ', 'reqinfoo')
                 ]
             )
+                
     except KeyError:
         grpid = await active_connection(str(message.from_user.id))
         await save_group_settings(grpid, 'auto_delete', True)
@@ -1139,6 +1123,7 @@ async def auto_filter(client, msg, spoll=False):
                     InlineKeyboardButton(f'ꜱᴇʀɪᴇꜱ', 'sinfo')
                 ]
             )
+
         else:
             btn.insert(0, 
                 [
@@ -1155,17 +1140,14 @@ async def auto_filter(client, msg, spoll=False):
     if offset != "":
         key = f"{message.chat.id}-{message.id}"
         BUTTONS[key] = search
+        req = message.from_user.id if message.from_user else 0
         btn.append(
-            [InlineKeyboardButton("ᴘᴀɢᴇs", callback_data="pages"),
-             InlineKeyboardButton(text=f"1/{math.ceil(int(total_results)/10)}", callback_data="pages"),
-             InlineKeyboardButton(text="ɴᴇxᴛ", callback_data=f"next_{req}_{key}_{offset}")]
+            [InlineKeyboardButton("ᴘᴀɢᴇs", callback_data="pages"), InlineKeyboardButton(text=f"1/{math.ceil(int(total_results)/10)}",callback_data="pages"), InlineKeyboardButton(text="ɴᴇxᴛ",callback_data=f"next_{req}_{key}_{offset}")]
         )
     else:
         btn.append(
-            [InlineKeyboardButton(text="ɴᴏ ᴍᴏʀᴇ ᴘᴀɢᴇs ᴀᴠᴀɪʟᴀʙʟᴇ", callback_data="pages")]
+            [InlineKeyboardButton(text="ɴᴏ ᴍᴏʀᴇ ᴘᴀɢᴇs ᴀᴠᴀɪʟᴀʙʟᴇ",callback_data="pages")]
         )
-
-    await msg.reply_text(script.FOUND_MSG.format(search, total_results), reply_markup=InlineKeyboardMarkup(btn))
     imdb = await get_poster(search, file=(files[0]).file_name) if settings["imdb"] else None
     TEMPLATE = settings['template']
     if imdb:
