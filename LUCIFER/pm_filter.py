@@ -1305,7 +1305,7 @@ async def advantage_spell_chok(message):
     try:
         movies = await get_poster(search, bulk=True)
     except:
-        n = await message.reply_photo(photo=random.choice(PICS), caption=script.NOT_FILE_TXT.format(message.from_user.mention, search), reply_markup=InlineKeyboardMarkup(btn))
+        n = await message.reply_photo(photo=random.choice(SPELL_IMG), caption=script.NOT_FILE_TXT.format(message.from_user.mention, search), reply_markup=InlineKeyboardMarkup(btn))
         await asyncio.sleep(60)
         await n.delete()
         try:
@@ -1315,7 +1315,7 @@ async def advantage_spell_chok(message):
         return
 
     if not movies:
-        n = await message.reply_photo(photo=random.choice(PICS), caption=script.NOT_FILE_TXT.format(message.from_user.mention, search), reply_markup=InlineKeyboardMarkup(btn))
+        n = await message.reply_photo(photo=random.choice(SPELL_IMG), caption=script.NOT_FILE_TXT.format(message.from_user.mention, search), reply_markup=InlineKeyboardMarkup(btn))
         await asyncio.sleep(60)
         await n.delete()
         try:
@@ -1335,7 +1335,7 @@ async def advantage_spell_chok(message):
     )
 
     s = await message.reply_photo(
-        photo=random.choice(PICS),
+        photo=random.choice(SPELL_IMG),
         caption=f"👋 Hello {message.from_user.mention},\n\nI couldn't find the <b>'{search}'</b> you requested.\nSelect if you meant one of these? 👇",
         reply_markup=InlineKeyboardMarkup(buttons),
         reply_to_message_id=message.id
