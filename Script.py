@@ -336,6 +336,13 @@ https://t.me/MoviesHouse8/9</code>
 
 Powered by :- KD Botz
 """
+    NOT_FILE_TXT = """👋 Hello {},
+
+I can't find the <b>{}</b> in my database! 🥲
+
+👉 Google Search and check your spelling is correct.
+👉 Please read the Instructions to get better results.
+👉 Or not been released yet."""
 
     SPLMD = """
 ᴍᴏᴠɪᴇ ʀᴇǫᴜᴇsᴛ ғᴏʀᴍᴀᴛ
